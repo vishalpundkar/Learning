@@ -1,0 +1,19 @@
+from pyspark import SparkContext
+sc = SparkContext("local","PySparkIntro")
+from pyspark.sql import SparkSession 
+spark = SparkSession.builder.appName("PySparkIntro").getOrCreate()  
+
+## rdd Dataframe
+
+data = [1,2,3,4,5]
+rdd = sc.parallelize(data)
+
+squared_rdd = rdd.map(lambda x: x**2)
+even_rdd = rdd.filter(lambda x: x%2 == 0 )
+
+## execute
+collected_data= squared_rdd.collect()
+num_elements = squared_rdd.count()
+
+## spark Dataframe
+

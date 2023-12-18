@@ -1,0 +1,102 @@
+### To connect with sqlserver database (A)
+
+df= spark.read.format("jdbc") \
+	.option("url","jdbc:sqlserver://{servername:portname};databaseName={databasename}") \
+	.option("dbtable","{table_name}") \
+	.option("user","sa") \
+	.option("password","*****") \
+	.load()
+
+	df.show()
+-----------------------------------------------------------------------------
+### To connect With blob storage (B)
+
+dbutils.fs.mount(
+		source="wasbs://{container}@{storage}.blob.core.windows.net", 
+		mount_point = "/mnt/outlet(Foldername)",
+		extra_configs = {"fs.azure.account.key.container_name.blob.core.windows.net":"{access_key}"}
+		)
+
+# storage account -> access key
+
+-----------------------------------------------------------------------------
+
+### To migrate data from sql server to blob storage (B)
+
+step 1 : create storage account
+
+step 2 : create azure data factories
+	
+	* once deployement is complete, go to resources
+	* Launch Studio
+
+	* left side, click on author -> new pipeline -> drag copy data
+	* click source and select sql server
+	* Linked service -> New
+	* connect via Integration runtime -> New (because data is in on primises)
+	* Network environment : Self-Hosted -> create
+	* Option 2 : Step 1 : Manual setup -> download and install 
+	* Click download & select First file & download
+	* Install the downloaded micro Integ Runtime Setup
+	* Option 2 : Step 2 : copy key 1 , paste  & register
+	* Launch Configuration Manager
+	* connect via Integration runtime -> select the one you just made
+	* server name, Database_name, User_name then test the connection
+	* select table name -> ok and preview the data
+	
+	* Sink (Target) -> new -> Blob storage -> select format
+	* Linked service -> new -> Azure Subsciption
+	* select Storage account name -> create
+	* File path -> select path and OK
+	* Publish all (Top little left corner)
+	* Add Trigger -> Trigger Now (its manual trigger) -> ok
+	* status from inprocess to succeded
+	* ie. data is stored into container
+
+Step 3 : connect container to databricks
+
+	* open data factories (left bar) -> compute -> create compute (Create cluster) -> create compute
+	* Now mount databricks to blob storage
+		* create notebook(change sql to python)
+		 
+	* ### To connect With blob storage (B)
+
+		dbutils.fs.mount(
+			source="wasbs://{container}@{storage}.blob.core.windows.net", 
+			mount_point = "/mnt/outlet(Foldername target)",
+			extra_configs = {"fs.azure.account.key.container_name.blob.core.windows.net":"{access_key}"}
+			)
+
+		# storage account -> access key
+
+	* dbutils.fs.ls("/mnt/outlet(Foldername target)")
+	
+step 4 : create dataframe  
+	* df = spark.read.format("csv").options(header="header",inferschema='True').load('dfs:mnt/raw/dbo.pizza_sales.test')
+	* display(df)
+	* df.createOrReplaceTempView("pizza_analysis")
+	* %sql
+	* select * from pizza_analysis
+	* 
+-----------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
